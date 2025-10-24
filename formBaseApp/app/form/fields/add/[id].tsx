@@ -15,32 +15,47 @@ import { Picker } from "@react-native-picker/picker";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { Ionicons } from "@expo/vector-icons";
+
 import { api } from "../../../../lib/apiClient";
 import { ENV } from "../../../../lib/env";
 import { useCustomHeader } from "../../../../hooks/use-custom-header";
+import { Colors, screenWidth, screenHeight } from "../../../../constants/theme";
+import { TEXTS } from "../../../../constants/texts";
 
 export default function AddField() {
-  const { id } = useLocalSearchParams(); // form_id
+  const { id } = useLocalSearchParams(); // ✅ form_id
   const router = useRouter();
   const navigation = useNavigation();
 
-  // ✅ Apply custom header
-  useCustomHeader(navigation, router, "+ Add Field");
+  // ✅ Apply custom brown header
+  useCustomHeader(navigation, router, TEXTS.FIELD.ADDFIELDTITLE);
 
+  // ✅ Local component states
   const [name, setName] = useState("");
   const [fieldType, setFieldType] = useState<string>("");
   const [options, setOptions] = useState("");
   const [required, setRequired] = useState(false);
-  const [isNumeric, setIsNumeric] = useState(false); // ✅ for is_num
+  const [isNumeric, setIsNumeric] = useState(false); // ✅ Only for text fields
   const [showPicker, setShowPicker] = useState(false);
 
+  // ✅ Field Type dropdown data
+  const fieldTypes = [
+    { label: "Text", value: "text" },
+    { label: "Multiline", value: "multiline" },
+    { label: "Dropdown", value: "dropdown" },
+    { label: "Date", value: "date" },
+    { label: "Location", value: "location" },
+    { label: "Image", value: "image" },
+  ];
+
+  // ✅ SAVE FIELD
   const handleSave = async () => {
     if (!name.trim()) {
-      Alert.alert("Validation", "Field name is required.");
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.FIELD.ERROR_EMPTY);
       return;
     }
     if (!fieldType) {
-      Alert.alert("Validation", "Please select a field type.");
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.FIELD.ERROR_TYPE);
       return;
     }
 
@@ -49,7 +64,7 @@ export default function AddField() {
         form_id: Number(id),
         name,
         field_type: fieldType,
-        is_num: fieldType === "text" ? isNumeric : false, // ✅ numeric toggle
+        is_num: fieldType === "text" ? isNumeric : false,
         options:
           fieldType === "dropdown" && options
             ? options.split(",").map((o) => o.trim()).filter(Boolean)
@@ -60,9 +75,9 @@ export default function AddField() {
       };
 
       await api.post("/field", payload);
-      Alert.alert("Success", "Field added successfully!");
+      Alert.alert(TEXTS.SUCCESS.FIELD_ADDED);
 
-      // reset fields
+      // ✅ Reset the form
       setName("");
       setFieldType("");
       setOptions("");
@@ -70,72 +85,82 @@ export default function AddField() {
       setIsNumeric(false);
     } catch (err) {
       console.error(err);
-      Alert.alert("Error", "Failed to save field.");
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.ERROR.GENERIC);
     }
   };
-
-  const fieldTypes = [
-    { label: "Text", value: "text" },
-    { label: "Multiline", value: "multiline" },
-    { label: "Dropdown", value: "dropdown" },
-    { label: "Date", value: "date" },
-    { label: "Location", value: "location" },
-    { label: "Image", value: "image" },
-  ];
 
   return (
     <ScrollView
       className="flex-1"
-      style={{ backgroundColor: "#DFFFD6" }}
-      contentContainerStyle={{ padding: 16 }}
+      style={{ backgroundColor: Colors.BACKGROUND }}
+      contentContainerStyle={{ padding: screenWidth * 0.04 }}
       keyboardShouldPersistTaps="handled"
     >
+      {/* Screen Title */}
       <Animated.View entering={FadeInDown.duration(500)}>
-        <Text className="text-2xl font-bold text-green-800 mb-5">
-          Add New Field
+        {/* FIELD NAME */}
+        <Text style={{ fontWeight: "600", color: Colors.TEXT, marginBottom: 6 }}>
+          {TEXTS.FIELD.LABEL_NAME}
         </Text>
-
-        {/* Field Name */}
-        <Text className="font-semibold text-gray-700 mb-1">Field Name</Text>
         <TextInput
-          placeholder="Enter field name"
+          placeholder={TEXTS.FIELD.PLACEHOLDER_NAME}
           value={name}
           onChangeText={setName}
-          className="bg-white border border-green-300 rounded-xl px-4 py-3 mb-4"
+          style={{
+            backgroundColor: Colors.WHITE,
+            borderWidth: 1,
+            borderColor: Colors.CARD_BORDER,
+            borderRadius: 14,
+            padding: screenHeight * 0.018,
+            marginBottom: screenHeight * 0.02,
+          }}
         />
 
-        {/* Field Type */}
-        <Text className="font-semibold text-gray-700 mb-1">Field Type</Text>
+        {/* FIELD TYPE (Dropdown) */}
+        <Text style={{ fontWeight: "600", color: Colors.TEXT, marginBottom: 6 }}>
+          {TEXTS.FIELD.LABEL_TYPE}
+        </Text>
 
         {Platform.OS === "ios" ? (
           <>
+            {/* iOS Picker trigger */}
             <TouchableOpacity
               onPress={() => setShowPicker(true)}
-              className="bg-white border border-green-300 rounded-xl px-4 py-3 mb-4"
+              style={{
+                backgroundColor: Colors.WHITE,
+                borderWidth: 1,
+                borderColor: Colors.CARD_BORDER,
+                borderRadius: 14,
+                padding: screenHeight * 0.018,
+                marginBottom: screenHeight * 0.02,
+              }}
             >
-              <Text className="text-green-800">
-                {fieldType ? fieldType : "Select field type..."}
+              <Text style={{ color: Colors.TEXT_DARK }}>
+                {fieldType || "Select field type..."}
               </Text>
             </TouchableOpacity>
 
+            {/* iOS Modal Picker */}
             <Modal visible={showPicker} transparent animationType="slide">
-              <View className="flex-1 justify-end bg-black/40">
-                <View className="bg-white rounded-t-2xl p-4">
-                  <View className="flex-row justify-between mb-2">
+              <View style={{ flex: 1, justifyContent: "flex-end", backgroundColor: "rgba(0,0,0,0.4)" }}>
+                <View
+                  style={{
+                    backgroundColor: Colors.WHITE,
+                    borderTopLeftRadius: 16,
+                    borderTopRightRadius: 16,
+                    padding: 16,
+                  }}
+                >
+                  <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                     <TouchableOpacity onPress={() => setShowPicker(false)}>
-                      <Text className="text-green-700 font-semibold">
-                        Cancel
-                      </Text>
+                      <Text style={{ color: Colors.PRIMARY, fontWeight: "600" }}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => setShowPicker(false)}>
-                      <Text className="text-green-700 font-semibold">Done</Text>
+                      <Text style={{ color: Colors.PRIMARY, fontWeight: "600" }}>Done</Text>
                     </TouchableOpacity>
                   </View>
 
-                  <Picker
-                    selectedValue={fieldType}
-                    onValueChange={(itemValue) => setFieldType(itemValue)}
-                  >
+                  <Picker selectedValue={fieldType} onValueChange={(v) => setFieldType(v)}>
                     <Picker.Item label="Select field type..." value="" />
                     {fieldTypes.map((f) => (
                       <Picker.Item key={f.value} label={f.label} value={f.value} />
@@ -146,14 +171,18 @@ export default function AddField() {
             </Modal>
           </>
         ) : (
-          <View className="bg-white border border-green-300 rounded-xl px-2 mb-4 overflow-hidden">
-            <Picker
-              selectedValue={fieldType}
-              onValueChange={(itemValue) => setFieldType(itemValue)}
-              dropdownIconColor="#065f46"
-              style={{ color: "#065f46", height: 50, width: "100%" }}
-            >
-              <Picker.Item label="Select field type..." value="" color="#9CA3AF" />
+          // ✅ Android Picker
+          <View
+            style={{
+              backgroundColor: Colors.WHITE,
+              borderWidth: 1,
+              borderColor: Colors.CARD_BORDER,
+              borderRadius: 14,
+              marginBottom: screenHeight * 0.02,
+            }}
+          >
+            <Picker selectedValue={fieldType} onValueChange={(v) => setFieldType(v)}>
+              <Picker.Item label="Select field type..." value="" />
               {fieldTypes.map((f) => (
                 <Picker.Item key={f.value} label={f.label} value={f.value} />
               ))}
@@ -161,59 +190,60 @@ export default function AddField() {
           </View>
         )}
 
-        {/* ✅ Numeric toggle (only for text) */}
+        {/* ✅ NUMERIC TOGGLE (Text Only) */}
         {fieldType === "text" && (
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="font-medium text-gray-700">Is Number?</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: screenHeight * 0.02 }}>
+            <Text style={{ fontWeight: "600", color: Colors.TEXT }}>{TEXTS.FIELD.NUMERIC}</Text>
             <Switch value={isNumeric} onValueChange={setIsNumeric} />
           </View>
         )}
 
-        {/* ✅ Dropdown Options */}
+        {/* ✅ DROPDOWN OPTIONS */}
         {fieldType === "dropdown" && (
-          <Animated.View entering={FadeInDown.duration(300)}>
-            <Text className="font-semibold text-gray-700 mb-1">
-              Dropdown Options (comma separated)
+          <View style={{ marginBottom: screenHeight * 0.02 }}>
+            <Text style={{ fontWeight: "600", color: Colors.TEXT, marginBottom: 6 }}>
+              {TEXTS.FIELD.LABEL_OPTIONS}
             </Text>
             <TextInput
-              placeholder="option1, option2, option3"
+              placeholder={TEXTS.FIELD.PLACEHOLDER_OPTIONS}
               value={options}
               onChangeText={setOptions}
-              className="bg-white border border-green-300 rounded-xl px-4 py-3 mb-4"
+              style={{
+                backgroundColor: Colors.WHITE,
+                borderWidth: 1,
+                borderColor: Colors.CARD_BORDER,
+                borderRadius: 14,
+                padding: screenHeight * 0.018,
+              }}
             />
-          </Animated.View>
+          </View>
         )}
 
-        {/* Required Toggle */}
-        <View className="flex-row items-center justify-between mb-3">
-          <Text className="font-medium text-gray-700">Required Field</Text>
+        {/* ✅ REQUIRED TOGGLE */}
+        <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: screenHeight * 0.02 }}>
+          <Text style={{ fontWeight: "600", color: Colors.TEXT }}>{TEXTS.FIELD.REQUIRED}</Text>
           <Switch value={required} onValueChange={setRequired} />
         </View>
 
-        {/* Save Button */}
-        <View className="w-full items-center mt-4">
-          <TouchableOpacity
-            onPress={handleSave}
-            activeOpacity={0.8}
-            className="w-2/3 rounded-xl overflow-hidden shadow-md"
-          >
+        {/* ✅ SAVE BUTTON (GRADIENT) */}
+        <View style={{ marginTop: screenHeight * 0.02, alignItems: "center" }}>
+          <TouchableOpacity className="w-2/3 rounded-xl overflow-hidden shadow-md" onPress={handleSave}>
             <LinearGradient
-              colors={["#34D399", "#059669"]}
-              className="h-14 rounded-xl px-4 items-center justify-center"
+              colors={Colors.PRIMARY_GRADIENT}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{
+                height: screenHeight * 0.06,
+                borderRadius: 16,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+              }}
             >
-              <View className="flex-row items-center" style={{ margin: 10 }}>
-                <Ionicons
-                  name="checkmark-circle-outline"
-                  size={22}
-                  color="white"
-                />
-                <Text
-                  className="text-white font-semibold text-lg ml-2"
-                  style={{ lineHeight: 22, textAlign: "center" }}
-                >
-                  Save Field
-                </Text>
-              </View>
+              <Ionicons name="checkmark-circle-outline" size={20} color={Colors.WHITE} />
+              <Text style={{ color: Colors.WHITE, fontWeight: "700", fontSize: screenWidth * 0.045, marginLeft: 8 }}>
+                {TEXTS.FIELD.SAVE_BUTTON}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

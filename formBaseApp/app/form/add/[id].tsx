@@ -8,16 +8,16 @@ import {
   Alert,
   ActivityIndicator,
   StyleSheet,
-  Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter, useNavigation } from "expo-router";
-import { TouchableOpacity as RNTouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { api } from "../../lib/apiClient";
-import { ENV } from "../../lib/env";
+import { api } from "../../../lib/apiClient";
+import { ENV } from "../../../lib/env";
+import { useCustomHeader } from "../../../hooks/use-custom-header";
+import { Colors, screenWidth , screenHeight} from "../../../constants/theme";
+import { TEXTS } from "../../../constants/texts";
 
-const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
+// const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 export default function AddForm() {
   const router = useRouter();
@@ -27,68 +27,46 @@ export default function AddForm() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerShown: true,
-      headerLeft: () => (
-        <RNTouchableOpacity style={styles.headerLeft} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </RNTouchableOpacity>
-      ),
-      title: "📝 Add New Form",
-      headerStyle: { backgroundColor: "#059669" },
-      headerTintColor: "#fff",
-    });
-  }, [navigation, router]);
+  // ✅ Use shared custom header
+  useCustomHeader(navigation, router, TEXTS.FORM.TITLE);
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      Alert.alert("Error", "Form title cannot be empty.");
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.FORM.ERROR_EMPTY);
       return;
     }
-  
+
     setLoading(true);
     try {
-      const payload = {
+      await api.post("/form", {
         name: title,
         description: description || "",
         username: ENV.VITE_USERNAME,
-      };
-  
-      await api.post("/form", payload);
-  
-      // ✅ CLEAR FIELDS BEFORE LEAVING
+      });
+
       setTitle("");
       setDescription("");
-  
-      Alert.alert(
-        "Success",
-        "Form has been saved successfully!",
-        [
-          {
-            text: "OK",
-            onPress: () => router.back(), // go back ONLY after clearing
-          },
-        ],
-        { cancelable: false }
-      );
-    } catch (err) {
-      Alert.alert("Error", err instanceof Error ? err.message : "Something went wrong");
+
+      Alert.alert("Success", TEXTS.FORM.SUCCESS_SAVE, [
+        { text: "OK", onPress: () => router.back() },
+      ]);
+    } catch {
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.ERROR.GENERIC);
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <ScrollView style={styles.container}>
-      {/* Form Title */}
+      {/* Title */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Form Title</Text>
+        <Text style={styles.label}>{TEXTS.FORM.LABEL_NAME}</Text>
         <TextInput
           value={title}
           onChangeText={setTitle}
-          placeholder="Enter form title"
+          placeholder={TEXTS.FORM.PLACEHOLDER_NAME}
+          placeholderTextColor={Colors.TEXT_MUTED}
           style={styles.input}
           editable={!loading}
         />
@@ -96,14 +74,14 @@ export default function AddForm() {
 
       {/* Description */}
       <View style={styles.inputContainer}>
-        <Text style={styles.label}>Description</Text>
+        <Text style={styles.label}>{TEXTS.FORM.LABEL_DESCRIPTION}</Text>
         <TextInput
           value={description}
           onChangeText={setDescription}
-          placeholder="Enter form description"
+          placeholder={TEXTS.FORM.PLACEHOLDER_DESCRIPTION}
+          placeholderTextColor={Colors.TEXT_MUTED}
           style={[styles.input, styles.textArea]}
           multiline
-          numberOfLines={4}
           textAlignVertical="top"
           editable={!loading}
         />
@@ -117,15 +95,15 @@ export default function AddForm() {
         disabled={loading}
       >
         <LinearGradient
-          colors={loading ? ["#6ee7b7", "#34d399"] : ["#34D399", "#059669"]}
+         colors={Colors.PRIMARY_GRADIENT}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={styles.buttonGradient}
         >
           {loading ? (
-            <ActivityIndicator size="small" color="#fff" />
+            <ActivityIndicator size="small" color={Colors.WHITE} />
           ) : (
-            <Text style={styles.buttonText}>Save Form</Text>
+            <Text style={styles.buttonText}>{TEXTS.FORM.BUTTON_SAVE}</Text>
           )}
         </LinearGradient>
       </TouchableOpacity>
@@ -133,37 +111,31 @@ export default function AddForm() {
   );
 }
 
+// ✅ Styles (uses theme colors)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#DFFFD6",
+    backgroundColor: Colors.BACKGROUND,
     paddingHorizontal: screenWidth * 0.06,
     paddingVertical: screenHeight * 0.03,
   },
-  headerLeft: { marginLeft: 15 },
-
   inputContainer: {
     marginBottom: screenHeight * 0.03,
   },
   label: {
     fontSize: screenWidth * 0.045,
-    color: "#065f46",
+    color: Colors.TEXT_DARK,
     fontWeight: "600",
     marginBottom: screenHeight * 0.008,
   },
   input: {
-    backgroundColor: "#fff",
+    backgroundColor: Colors.WHITE,
     padding: screenHeight * 0.018,
     borderRadius: screenWidth * 0.04,
     borderWidth: 1,
-    borderColor: "#A7F3D0",
+    borderColor: Colors.CARD_BORDER,
     fontSize: screenWidth * 0.045,
-    color: "#064e3b",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
-    elevation: 1,
+    color: Colors.TEXT_DARK,
   },
   textArea: {
     height: screenHeight * 0.15,
@@ -180,7 +152,7 @@ const styles = StyleSheet.create({
     borderRadius: screenWidth * 0.06,
   },
   buttonText: {
-    color: "#fff",
+    color: Colors.WHITE,
     fontWeight: "bold",
     fontSize: screenWidth * 0.048,
   },

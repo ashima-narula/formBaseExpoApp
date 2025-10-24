@@ -2,11 +2,17 @@ import React, { useState, useRef } from "react";
 import { View, Text, TouchableOpacity, TextInput, FlatList } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 import * as Location from "expo-location";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { useCustomHeader } from "../../../hooks/use-custom-header";
 
 export default function SelectLocation() {
   const router = useRouter();
+  const navigation = useNavigation();
+
+  // ✅ Set custom header
+  useCustomHeader(navigation, router, "📍 Select Location");
+
   const { id, field } = useLocalSearchParams<{ id: string; field: string }>();
   const mapRef = useRef<MapView>(null);
 
@@ -16,7 +22,7 @@ export default function SelectLocation() {
   const [placeName, setPlaceName] = useState("");
 
   const initialRegion: Region = {
-    latitude: -27.4705,   // Default: Brisbane
+    latitude: -27.4705,  // Default: Brisbane
     longitude: 153.0260,
     latitudeDelta: 0.08,
     longitudeDelta: 0.08,
@@ -33,47 +39,59 @@ export default function SelectLocation() {
     setSearch(text);
     if (!text.trim()) return setSuggestions([]);
 
-    const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${text}`
-    );
-    const data = await res.json();
-    setSuggestions(data || []);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${text}`
+      );
+      const data = await res.json();
+      setSuggestions(data || []);
+    } catch {
+      setSuggestions([]);
+    }
   };
 
   const handleUseCurrentLocation = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") return;
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") throw new Error("Permission denied");
 
-    const loc = await Location.getCurrentPositionAsync({});
-    const lat = loc.coords.latitude;
-    const lng = loc.coords.longitude;
+      const loc = await Location.getCurrentPositionAsync({});
+      const lat = loc.coords.latitude;
+      const lng = loc.coords.longitude;
 
-    setMarker({ lat, lng });
-    setPlaceName("Current Location");
-    animateTo(lat, lng);
+      setMarker({ lat, lng });
+      setPlaceName("Current Location");
+      animateTo(lat, lng);
+    } catch (err) {
+      // ✅ Silent fallback
+      const lat = initialRegion.latitude;
+      const lng = initialRegion.longitude;
+      setMarker({ lat, lng });
+      setPlaceName("Brisbane (Fallback)");
+      animateTo(lat, lng);
+    }
   };
 
   const handleConfirm = () => {
     if (!marker) return;
     router.replace({
-        pathname: `/form/records/[id]`,
-        params: {
-          id: String(id),    // ✅ REQUIRED
-          from: "map",
-          field: String(field),
-          name: placeName,
-          lat: String(marker.lat),
-          lng: String(marker.lng),
-        },
-      });
-      
+      pathname: "/form/records/[id]",
+      params: {
+        id: String(id),
+        from: "map",
+        field: String(field),
+        name: placeName,
+        lat: String(marker.lat),
+        lng: String(marker.lng),
+      },
+    });
   };
 
   return (
     <View className="flex-1 bg-white">
 
-      {/* Search Box */}
-      <View className="absolute top-10 left-4 right-4 z-20">
+      {/* 🔍 Search Box */}
+      <View className="absolute top-20 left-4 right-4 z-20">
         <TextInput
           value={search}
           onChangeText={searchPlaces}
@@ -114,7 +132,7 @@ export default function SelectLocation() {
         </TouchableOpacity>
       </View>
 
-      {/* Map */}
+      {/* 🗺️ Map */}
       <MapView
         ref={mapRef}
         style={{ flex: 1 }}
@@ -140,7 +158,7 @@ export default function SelectLocation() {
         )}
       </MapView>
 
-      {/* Confirm Button */}
+      {/* ✅ Confirm */}
       <View className="absolute bottom-6 left-4 right-4">
         {marker && (
           <View className="bg-white rounded-xl p-3 mb-3 shadow">

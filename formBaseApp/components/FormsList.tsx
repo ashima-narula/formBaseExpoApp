@@ -7,10 +7,9 @@ import { api } from "../lib/apiClient";
 import { ENV } from "../lib/env";
 import NoData from "./NoData";
 import { useFocusEffect } from "@react-navigation/native";
-import { pastelColors } from "../constants/theme";
-import { TEXTS } from "../constants/texts"; // ✅ Using grouped text constants
+import { pastelColors, Colors } from "../constants/theme";
+import { TEXTS } from "../constants/texts";
 
-// ✅ TypeScript type for Form item
 type Form = {
   id: number;
   name: string;
@@ -20,38 +19,31 @@ type Form = {
 
 export default function FormsList() {
   const router = useRouter();
-
-  // ✅ Component state
   const [forms, setForms] = useState<Form[]>([]);
-  const [refreshing, setRefreshing] = useState(false); // Used for pull-to-refresh
+  const [refreshing, setRefreshing] = useState(false);
 
-  // ✅ Fetch forms from API
   const fetchForms = async () => {
     try {
       const data = await api.get<Form[]>(`/form?username=eq.${ENV.VITE_USERNAME}`);
       setForms(data);
-    } catch (err) {
-      console.error(err);
-      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.ERROR.LOAD_FORMS); // ✅ Centralized text
+    } catch {
+      Alert.alert(TEXTS.ERROR.TITLE, TEXTS.ERROR.LOAD_FORMS);
     } finally {
       setRefreshing(false);
     }
   };
 
-  // ✅ Automatically fetch forms on screen focus
   useFocusEffect(
     useCallback(() => {
       fetchForms();
     }, [])
   );
 
-  // ✅ Pull-to-refresh action
   const onRefresh = () => {
     setRefreshing(true);
     fetchForms();
   };
 
-  // ✅ Delete confirmation + delete API call
   const handleDelete = (id: number) => {
     Alert.alert(TEXTS.CONFIRM.DELETE_TITLE, TEXTS.CONFIRM.DELETE_MESSAGE, [
       { text: "Cancel", style: "cancel" },
@@ -61,9 +53,8 @@ export default function FormsList() {
         onPress: async () => {
           try {
             await api.del("/form", { id: `eq.${id}` });
-            setForms((prev) => prev.filter((f) => f.id !== id)); // remove from list
-          } catch (err) {
-            console.error(err);
+            setForms((prev) => prev.filter((f) => f.id !== id));
+          } catch {
             Alert.alert(TEXTS.ERROR.TITLE, TEXTS.ERROR.DELETE_FORM);
           }
         },
@@ -71,29 +62,30 @@ export default function FormsList() {
     ]);
   };
 
-  // ✅ Form card UI
   const renderItem = ({ item, index }: { item: Form; index: number }) => (
     <Animated.View
-      entering={FadeInDown.delay(index * 100).duration(400)} // smooth animation
-      className="mb-3 rounded-2xl overflow-hidden border-2 border-emerald-600 shadow-sm"
+      entering={FadeInDown.delay(index * 100).duration(400)}
+      className="mb-3 rounded-2xl overflow-hidden shadow-md"
+      style={{
+        borderWidth: 2,
+        borderColor: Colors.CARD_BORDER,
+        shadowColor: Colors.CARD_SHADOW,
+      }}
     >
-      {/* Top clickable row (navigate to records) */}
       <TouchableOpacity
         activeOpacity={0.9}
         onPress={() => router.push(`/form/records/${item.id}`)}
         className="flex-row items-center p-4 bg-white rounded-t-2xl"
       >
-        {/* Circle with initial */}
         <View
           className="w-14 h-14 rounded-full mr-4 shadow-md items-center justify-center"
           style={{ backgroundColor: pastelColors[index % pastelColors.length] }}
         >
-          <Text className="font-extrabold text-lg text-red-600">
+          <Text className="font-extrabold text-lg text-gray-700">
             {item.name[0]?.toUpperCase()}
           </Text>
         </View>
 
-        {/* Form Name + Description */}
         <View className="flex-1">
           <Text className="text-lg font-bold text-gray-900">{item.name}</Text>
           <Text className="text-gray-600 text-sm mt-1">
@@ -102,15 +94,11 @@ export default function FormsList() {
         </View>
       </TouchableOpacity>
 
-      {/* Divider */}
-      <View className="border-t border-gray-300" />
-
-      {/* Action Buttons */}
-      <View className="bg-gray-50 p-3 rounded-b-2xl">
-        {/* Row 1 - Edit & View */}
+      <View className="bg-gray-50 p-3 rounded-b-2xl border-t border-gray-300">
         <View className="flex-row justify-between mb-2">
           <TouchableOpacity
-            className="flex-1 mr-2 bg-indigo-500 rounded-md py-2 px-3 flex-row items-center justify-center"
+            className="flex-1 mr-2 rounded-md py-2 px-3 flex-row items-center justify-center"
+            style={{ backgroundColor: Colors.PRIMARY }}
             onPress={() => router.push(`/form/edit/${item.id}`)}
           >
             <Ionicons name="pencil-outline" size={18} color="white" />
@@ -118,7 +106,8 @@ export default function FormsList() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-1 ml-2 bg-emerald-500 rounded-md py-2 px-3 flex-row items-center justify-center"
+            className="flex-1 ml-2 rounded-md py-2 px-3 flex-row items-center justify-center"
+            style={{ backgroundColor: Colors.PRIMARY_LIGHT }}
             onPress={() => router.push(`/form/records/${item.id}`)}
           >
             <Ionicons name="eye-outline" size={18} color="white" />
@@ -126,10 +115,10 @@ export default function FormsList() {
           </TouchableOpacity>
         </View>
 
-        {/* Row 2 - Fields & Delete */}
         <View className="flex-row justify-between">
           <TouchableOpacity
-            className="flex-1 mr-2 bg-purple-500 rounded-md py-2 px-3 flex-row items-center justify-center"
+            className="flex-1 mr-2 rounded-md py-2 px-3 flex-row items-center justify-center"
+            style={{ backgroundColor: Colors.PRIMARY_LIGHT }}
             onPress={() => router.push(`/form/fields/${item.id}`)}
           >
             <Ionicons name="construct-outline" size={18} color="white" />
@@ -137,7 +126,8 @@ export default function FormsList() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            className="flex-1 ml-2 bg-red-500 rounded-md py-2 px-3 flex-row items-center justify-center"
+            className="flex-1 ml-2 rounded-md py-2 px-3 flex-row items-center justify-center"
+            style={{ backgroundColor: Colors.DANGER }}
             onPress={() => handleDelete(item.id)}
           >
             <Ionicons name="trash-outline" size={18} color="white" />
@@ -148,9 +138,8 @@ export default function FormsList() {
     </Animated.View>
   );
 
-  // ✅ Main UI
   return (
-    <View className="flex-1 p-3" style={{ backgroundColor: "#DFFFD6" }}>
+    <View className="flex-1 p-3" style={{ backgroundColor: Colors.BACKGROUND }}>
       <FlatList
         data={forms}
         keyExtractor={(item) => item.id.toString()}

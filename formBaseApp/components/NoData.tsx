@@ -1,25 +1,26 @@
 import React from "react";
-import { View, Text, Image, Dimensions, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
+import { Colors, screenWidth, screenHeight } from "../constants/theme";
+import { TEXTS } from "../constants/texts";
 
 type NoDataProps = {
-  message?: string;
-  imageUrl?: string;
+  message?: string;   // Optional custom message for the user
+  imageUrl?: string;  // Optional custom image for the empty state
 };
 
 export default function NoData({
-  message = "No data found!",
+  message = TEXTS.NODATA.TITLE, // Default title from global text constants
   imageUrl = "https://cdn-icons-png.flaticon.com/512/4076/4076549.png",
 }: NoDataProps) {
-  const { width, height } = Dimensions.get("window");
-
-  // Dynamic spacing
-  const horizontalPadding = width * 0.05; // 5% of screen width
-  const verticalMargin = height * 0.02;   // 2% of screen height
-  const imageHeight = height * 0.25;      // 25% of screen height
-  const imageWidth = width * 0.4;         // 40% of screen width
+  // Responsive dynamic spacing and sizing
+  const horizontalPadding = screenWidth * 0.05;
+  const verticalMargin = screenHeight * 0.02;
+  const imageHeight = screenHeight * 0.25;
+  const imageWidth = screenWidth * 0.4;
 
   return (
     <View style={[styles.container, { paddingHorizontal: horizontalPadding }]}>
+      {/* Empty State Illustration */}
       <Image
         source={{ uri: imageUrl }}
         style={{
@@ -29,29 +30,39 @@ export default function NoData({
         }}
         resizeMode="contain"
       />
-      <Text style={[styles.title, { marginBottom: verticalMargin / 2 }]}>{message}</Text>
+
+      {/* Title Message */}
+      <Text style={[styles.title, { marginBottom: verticalMargin / 2 }]}>
+        {message}
+      </Text>
+
+      {/* Subtitle / Helper Text */}
       <Text style={[styles.subtitle, { marginTop: verticalMargin / 2 }]}>
-        Try adding a new item to get started!
+        {TEXTS.NODATA.SUBTITLE}
       </Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Center UI content and use theme background
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: Colors.BACKGROUND,
   },
+  // Title (bold + dark text)
   title: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#6B7280",
+    color: Colors.TEXT,
     textAlign: "center",
   },
+  // Subtitle (lighter gray tone)
   subtitle: {
     fontSize: 16,
-    color: "#9CA3AF",
+    color: Colors.TEXT_MUTED,
     textAlign: "center",
   },
 });

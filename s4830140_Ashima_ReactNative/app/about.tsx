@@ -35,11 +35,12 @@ export default function About() {
   return (
     <SafeAreaView style={styles.screen}>
       {/* #### Hero / Title Block #### */}
+      <View  style={styles.hero}>
       <LinearGradient
         colors={Colors.PRIMARY_GRADIENT}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={styles.hero}
+       
       >
         <View style={styles.heroRow}>
           <View style={styles.iconBadge}>
@@ -50,6 +51,7 @@ export default function About() {
           </View>
         </View>
       </LinearGradient>
+      </View>
 
       {/* #### What is FormBase #### */}
       <View style={styles.card}>

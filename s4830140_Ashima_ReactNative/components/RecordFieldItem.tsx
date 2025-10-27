@@ -38,7 +38,6 @@ export default function RecordFieldItem({
 
   const openDropdown = () => setOpenPicker(true);
   const closeDropdown = () => setOpenPicker(false);
-  console.log('rerender')
   const handleNumericChange = (txt: string) => {
     const sanitized = txt.replace(/[^0-9]/g, ""); // strict digits only
     onChange(sanitized);

@@ -1,0 +1,161 @@
+import {FeatureCard} from "./type"
+
+// constants/texts.ts
+export const TEXTS = {
+  ERROR: {
+    TITLE: "Error",
+    LOAD_FORMS: "Failed to load forms.",
+    LOAD_FIELDS: "Failed to load fields.",
+    LOAD_RECORDS: "Failed to load records.",
+    DELETE_FORM: "Failed to delete form.",
+    DELETE_FIELD: "Failed to delete field.",
+    SAVE_RECORD: "Failed to save record.",
+    GENERIC: "Something went wrong.",
+  },
+
+  SUCCESS: {
+    FIELD_ADDED: "Field added successfully!",
+    RECORD_ADDED: "Record added!",
+    RECORD_UPDATED: "Record updated!",
+    RECORD_DELETED: "Record deleted successfully!",
+    FORM_UPDATED: "Form has been updated successfully!",
+  },
+
+  CONFIRM: {
+    DELETE_TITLE: "Confirm Delete",
+    DELETE_MESSAGE: "Are you sure you want to delete this form?",
+    DELETE_FIELD_TITLE: "Delete Field?",
+    DELETE_FIELD_MESSAGE:
+      "This field and its data will be removed and cannot be restored.",
+    DELETE_RECORD_TITLE: "Delete Record?",
+    DELETE_RECORD_MESSAGE: "Are you sure you want to delete this record?",
+    CLEAR_FIELD_TITLE: "Clear Field?",
+    CLEAR_FIELD_MESSAGE: "This field value will be removed. Are you sure?",
+  },
+
+  BUTTON: {
+    EDIT: "Edit",
+    VIEW: "View",
+    FIELDS: "Fields",
+    DELETE: "Delete",
+    SAVE_FIELD: "Save Field",
+    ADD_FIELD:"Add Field",
+    SUBMIT: "Submit",
+    UPDATE: "Update",
+    CANCEL:"Cancel",
+    DELETE_RECORD: "Delete Record",
+  },
+
+  PLACEHOLDER: {
+    NO_FORMS: "No forms available yet!",
+    NO_FIELDS: "No fields yet!",
+    NO_RECORDS: "No records found!",
+    NO_DESCRIPTION: "No description",
+  },
+
+  VALIDATION: {
+    REQUIRED: "This field is required.",
+    NUMERIC: "This field accepts numbers only. Please check your input.",
+  },
+
+  FORM: {
+    TITLE: "📝 Add New Form",
+    LABEL_NAME: "Form Title",
+    LABEL_DESCRIPTION: "Description",
+    PLACEHOLDER_NAME: "Enter form title",
+    PLACEHOLDER_DESCRIPTION: "Enter form description",
+    BUTTON_SAVE: "Save Form",
+    SUCCESS_SAVE: "Form has been saved successfully!",
+    ERROR_EMPTY: "Form title cannot be empty.",
+  },
+
+  FIELD: {
+    ADDFIELDTITLE: "➕ Add New Field",
+    LABEL_NAME: "Field Name",
+    PLACEHOLDER_TYPE: "Select field type...",
+    LABEL_TYPE: "Field Type",
+    LABEL_OPTIONS: "Dropdown Options (comma separated)",
+    REQUIRED: "Required Field",
+    NUMERIC: "Is Number?",
+    PLACEHOLDER_NAME: "Enter field name",
+    PLACEHOLDER_OPTIONS: "option1, option2, option3",
+    SUCCESS_SAVE: "Field added successfully!",
+    ERROR_EMPTY: "Field name is required.",
+    ERROR_TYPE: "Please select a field type.",
+    SAVE_BUTTON: "Save Field",
+    LIST_SUBTITLE: "Manage the fields for this form",
+    FIELD_TYPE_LABEL: "Field Type",
+    TITLE: "⚙️ Fields",
+    SUBTITLE: "Manage the fields for this form.",
+    NO_FIELDS: "No fields yet!",
+    DELETE_CONFIRM_TITLE: "Delete Field?",
+    DELETE_CONFIRM_MSG: "This field will be permanently removed.",
+  },
+
+  NODATA: {
+    TITLE: "No data found!",
+    SUBTITLE: "Try adding a new item to get started!",
+  },
+  HOME: {
+    FEAT_CREATE: "Create forms with flexible fields",
+    FEAT_COLLECT: "Collect records on your device",
+    FEAT_FILTER: "Search and filter with criteria",
+    FEAT_MAP: "Visualize locations on a map",
+    POWERED_TITLE: "Powered By",
+    POWERED_EXPO: "Expo + React Native",
+    POWERED_API: "PostgREST API backend",
+    POWERED_UI: "Modern mobile UI design",
+    TAGLINE: "Build. Capture. Organize. Anywhere.",
+    TITLE: "FormBase",
+    FEATURES_TITLE: "Why FormBase?",
+    GET_STARTED: "Get Started",
+    FOOTER: "Your smart data companion.",
+    FEATURES_HINT: "Swipe to explore features →",
+    // Slider card labels (used on Home)
+    SLIDE_CREATE_TITLE: "Create Forms",
+    SLIDE_CREATE_DESC: "Design fields—text, date, dropdown, image, location.",
+    SLIDE_CAPTURE_TITLE: "Capture Records",
+    SLIDE_CAPTURE_DESC: "Add or update your data entries instantly.",
+    SLIDE_FILTER_TITLE: "Filter & Review",
+    SLIDE_FILTER_DESC: "Search and review records on the fly.",
+    SLIDE_MAP_TITLE: "Map Locations",
+    SLIDE_MAP_DESC: "Save places with lat/lng directly from the map.",
+  },
+  ABOUT: {
+    TITLE: "About FormBase",
+    SUBTITLE: "A simple way to create forms and capture data.",
+    WHAT_TITLE: "What is FormBase?",
+    WHAT_BODY:
+      "FormBase lets you define custom forms, add records on the go, and explore data with filters and maps. It’s built to be lightweight, fast, and student-friendly.",
+    FEATURES_TITLE: "What Can I Do?",
+    POWERED_TITLE: "Technology",
+    FOOTER: "v0.5 · Built for learning and rapid prototyping.",
+    FEATURES_HINT: "Each feature helps you create, collect and manage data the way you want",
+  },
+};
+export const FEATURES: FeatureCard[] = [
+  {
+    key: "create",
+    title: TEXTS.HOME.FEAT_CREATE,
+    subtitle: TEXTS.ABOUT.FEATURES_HINT, // short helper text from ABOUT
+    icon: "create-outline",
+  },
+  {
+    key: "collect",
+    title: TEXTS.HOME.FEAT_COLLECT,
+    subtitle: TEXTS.ABOUT.FEATURES_HINT,
+    icon: "download-outline",
+  },
+  {
+    key: "filter",
+    title: TEXTS.HOME.FEAT_FILTER,
+    subtitle: TEXTS.ABOUT.FEATURES_HINT,
+    icon: "filter-outline",
+  },
+  {
+    key: "map",
+    title: TEXTS.HOME.FEAT_MAP,
+    subtitle: TEXTS.ABOUT.FEATURES_HINT,
+    icon: "map-outline",
+  },
+];
